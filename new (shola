@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OluwaShola, will you be my valentine?</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --glass: rgba(255,255,255,0.10);
+      --glass2: rgba(255,255,255,0.06);
+      --stroke: rgba(255,255,255,0.22);
+      --text: #fff;
+      --muted: rgba(255,255,255,0.82);
+      --shadow: 0 18px 60px rgba(0,0,0,0.35);
+
+      --yes: #38d39f;
+      --no:  #ff4d7d;
+    }
+
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      overflow:hidden;
+      background:#0b0b16;
+    }
+
+    /* Animated background */
+    .bg{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 900px at 20% 10%, rgba(255, 72, 150, 0.55), transparent 60%),
+        radial-gradient(900px 700px at 80% 70%, rgba(89, 75, 255, 0.55), transparent 60%),
+        radial-gradient(900px 700px at 20% 80%, rgba(56, 211, 159, 0.35), transparent 60%),
+        linear-gradient(120deg, #070711, #100c2a, #2a0b22);
+      filter:saturate(1.15);
+      animation:bgMove 12s ease-in-out infinite alternate;
+      transform:scale(1.05);
+    }
+    @keyframes bgMove{
+      0%   { filter:saturate(1.05) hue-rotate(0deg); }
+      100% { filter:saturate(1.25) hue-rotate(10deg); }
+    }
+
+    /* Floating hearts */
+    .hearts{ position:fixed; inset:0; pointer-events:none; overflow:hidden; }
+    .heart{
+      position:absolute;
+      bottom:-60px;
+      font-size:18px;
+      opacity:0.55;
+      animation: floatUp linear infinite;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.25));
+    }
+    @keyframes floatUp{
+      from { transform: translateY(0) translateX(0) rotate(0deg); }
+      to   { transform: translateY(-120vh) translateX(40px) rotate(18deg); }
+    }
+
+    .app{
+      position:relative;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:22px;
+    }
+
+    .card{
+      width:min(860px, 100%);
+      background: var(--glass);
+      border: 1px solid var(--stroke);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow:hidden;
+      position: relative;
+    }
+
+    header{ padding: 26px 26px 12px; }
+    .script{
+      font-family: "Great Vibes", cursive;
+      font-size: clamp(36px, 4.4vw, 64px);
+      margin:0;
+      line-height:1.0;
+      text-shadow: 0 10px 24px rgba(0,0,0,0.25);
+    }
+    .sub{
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-weight: 300;
+      font-size: 14px;
+    }
+
+    .slides{
+      position:relative;
+      border-top: 1px solid var(--stroke);
+      height: 420px;
+      background: var(--glass2);
+    }
+
+    .slide{ position:absolute; inset:0; padding:22px; display:none; }
+    .slide.active{ display:block; }
+
+    .panel{
+      height:100%;
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      background: rgba(0,0,0,0.12);
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      position: relative;
+      overflow:hidden;
+    }
+
+    .title{
+      margin:0;
+      font-size: 18px;
+      color: rgba(255,255,255,0.92);
+      font-weight: 600;
+    }
+
+    /* Buttons */
+    button{
+      border:0;
+      cursor:pointer;
+      border-radius: 16px;
+      font-weight: 800;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+      transition: transform 160ms ease, filter 160ms ease;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      font-family: "Poppins", sans-serif;
+    }
+    button:active { transform: scale(0.98); }
+
+    /* === FIXED: Arena uses FLEX so NO is visible on mobile === */
+    .rowArena{
+      width:min(520px, 100%);
+      height: 140px;
+      margin-top: 10px;
+      position:relative;
+      padding: 14px;
+      border-radius: 18px;
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 18px;
+    }
+
+    .btnYes{
+      position:relative;
+      width: 210px;
+      height: 70px;
+      font-size: 22px;
+      background: linear-gradient(180deg, #54f0be, var(--yes));
+      color: #062016;
+      letter-spacing: 0.6px;
+      z-index: 2;
+    }
+    .btnYes:hover { filter: brightness(1.06); }
+
+    /* NO starts visible beside YES (then becomes absolute when it runs) */
+    .btnNo{
+      position:relative;
+      width: 120px;
+      height: 52px;
+      font-size: 14px;
+      background: rgba(255,255,255,0.20);
+      border: 1px solid rgba(255,255,255,0.30);
+      color: rgba(255,255,255,0.95);
+      letter-spacing: 0.6px;
+      z-index: 3;
+    }
+
+    /* YES sparkle + grow */
+    .yesCelebrate{
+      animation: yesGrow 520ms cubic-bezier(.2,.9,.2,1) forwards;
+      filter: brightness(1.08);
+    }
+    @keyframes yesGrow{
+      0%   { transform: scale(1); }
+      55%  { transform: scale(1.12); }
+      100% { transform: scale(1.06); }
+    }
+
+    /* Sparkles layer */
+    .sparkles{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 1;
+    }
+    .spark{
+      position:absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.95);
+      box-shadow:
+        0 0 12px rgba(255,255,255,0.85),
+        0 0 22px rgba(84,240,190,0.55);
+      animation: pop 650ms ease-out forwards;
+    }
+    @keyframes pop{
+      0%   { transform: translate(0,0) scale(0.7); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0.25); opacity: 0; }
+    }
+
+    /* Fade between slides */
+    .fadeIn{ animation: fadeIn 280ms ease forwards; }
+    @keyframes fadeIn{
+      from { opacity: 0; transform: scale(1.01); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .form{
+      width: min(560px, 100%);
+      display:grid;
+      gap: 12px;
+      text-align:left;
+      margin-top: 8px;
+    }
+    label{
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      display:grid;
+      gap: 6px;
+    }
+    select, input[type="date"]{
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      outline:none;
+    }
+    option{ color:#111; }
+
+    .rowBtns{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content:center;
+      margin-top: 10px;
+    }
+    .small{
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid var(--stroke);
+      color: #fff;
+      box-shadow:none;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+    .primary{
+      background: linear-gradient(180deg, #54f0be, var(--yes));
+      color:#062016;
+      border:none;
+    }
+
+    .gifBox{
+      width: min(520px, 100%);
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid var(--stroke);
+      box-shadow: 0 16px 34px rgba(0,0,0,0.25);
+    }
+    .gifBox img{ width:100%; display:block; }
+
+    .love{
+      font-family: "Great Vibes", cursive;
+      font-size: 62px;
+      margin: 0;
+      text-shadow: 0 10px 26px rgba(0,0,0,0.25);
+    }
+    .finalText{
+      margin: 6px 0 0;
+      color: rgba(255,255,255,0.90);
+      font-size: 16px;
+      max-width: 640px;
+    }
+
+    .footer{
+      padding: 14px 18px;
+      border-top: 1px solid var(--stroke);
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      color: rgba(255,255,255,0.78);
+      font-size: 12px;
+      background: rgba(0,0,0,0.10);
+    }
+
+    @media (max-width: 560px){
+      .slides{ height: 470px; }
+      .btnYes{ width: 180px; height: 64px; font-size: 18px; }
+      .btnNo{ width: 110px; height: 48px; font-size: 13px; }
+      .love{ font-size: 52px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg"></div>
+  <div class="hearts" id="hearts"></div>
+
+  <div class="app">
+    <div class="card">
+      <header>
+        <h1 class="script">OluwaShola, will you be my valentine? 💘</h1>
+        <p class="sub">No is a shy one 😄</p>
+      </header>
+
+      <section class="slides">
+        <!-- Slide 1 -->
+        <div class="slide active" data-step="1">
+          <div class="panel" id="panel1">
+            <div class="sparkles" id="sparkles"></div>
+
+            <h2 class="title">Choose your answer…</h2>
+            <div class="rowArena" id="rowArena">
+              <button class="btnYes" id="yesBtn" type="button">YES 💖</button>
+              <button class="btnNo"  id="noBtn"  type="button" aria-label="No">NO 🙈</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide" data-step="2">
+          <div class="panel">
+            <h2 class="title">Yaaaaay!! 🎉🎉🎉</h2>
+            <div class="gifBox">
+              <img
+                src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif"
+                alt="Happy celebration gif"
+              />
+            </div>
+            <div class="rowBtns">
+              <button class="small primary" id="continue2" type="button">Continue</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide" data-step="3">
+          <div class="panel">
+            <h2 class="title">Pick the date you’ll be free 📅</h2>
+            <div class="form">
+              <label>
+                Choose a date
+                <input id="dateFree" type="date" />
+              </label>
+
+              <label>
+                Your mood emoji (optional)
+                <select id="moodEmoji">
+                  <option value="😍">😍 Love it</option>
+                  <option value="🥰">🥰 Sweet</option>
+                  <option value="😄">😄 Happy</option>
+                  <option value="🤭">🤭 Shy</option>
+                  <option value="😎">😎 Cool</option>
+                  <option value="🥳">🥳 Party</option>
+                </select>
+              </label>
+            </div>
+            <div class="rowBtns">
+              <button class="small primary" id="continue3" type="button">Continue</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 4 -->
+        <div class="slide" data-step="4">
+          <div class="panel">
+            <h2 class="title">What would you like to eat? 🇳🇬🍽️</h2>
+            <div class="form">
+              <label>
+                Pick your food
+                <select id="food">
+                  <option value="Jollof Rice + Chicken">Jollof Rice + Chicken</option>
+                  <option value="Fried Rice + Turkey">Fried Rice + Turkey</option>
+                  <option value="Sharwama + Smoothie">Sharwama + Smoothie</option>
+                  <option value="Suya + Chapman">Suya + Chapman</option>
+                  <option value="Pounded Yam + Egusi Soup">Pounded Yam + Egusi Soup</option>
+                  <option value="Ofada Rice + Ayamase">Ofada Rice + Ayamase</option>
+                  <option value="Pepper Soup (goat/fish)">Pepper Soup (goat/fish)</option>
+                  <option value="Small Chops + Zobo">Small Chops + Zobo</option>
+                </select>
+              </label>
+            </div>
+            <div class="rowBtns">
+              <button class="small primary" id="continue4" type="button">Continue</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide" data-step="5">
+          <div class="panel">
+            <h2 class="title">What would you like to do? ✨</h2>
+            <div class="form">
+              <label>
+                Choose an activity
+                <select id="activity">
+                  <option value="Movies + popcorn 🎬">Movies + popcorn 🎬</option>
+                  <option value="Cute dinner date 🍽️">Cute dinner date 🍽️</option>
+                  <option value="Long drive + music 🚗🎶">Long drive + music 🚗🎶</option>
+                  <option value="Photoshoot / pictures 📸">Photoshoot / pictures 📸</option>
+                  <option value="Beach walk + ice cream 🍦">Beach walk + ice cream 🍦</option>
+                  <option value="Game night (PS / cards) 🎮">Game night (PS / cards) 🎮</option>
+                  <option value="Stay in + Netflix + cuddle 🛋️">Stay in + Netflix + cuddle 🛋️</option>
+                </select>
+              </label>
+            </div>
+            <div class="rowBtns">
+              <button class="small primary" id="continue5" type="button">Continue</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide" data-step="6">
+          <div class="panel">
+            <p class="love">I love you ❤️</p>
+            <p class="finalText">Thanks for saying yes, Baby 🥹💞</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">
+        <div id="stepText">Step 1 of 6</div>
+        <div>Created by Anthony • Made with love ❤️</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // === Google Sheet tracking ===
+    const SHEET_URL = "https://script.google.com/macros/s/AKfycbxVgZV0N4LJQYeS-o7EFI0Z8l5gXDuSabjNUVBtoqFNOR_qB5zu4yrcgRnCKWw5O5k/exec";
+
+    function saveResponse(data) {
+      const formData = new URLSearchParams(data);
+      fetch(SHEET_URL, { method: "POST", body: formData })
+        .catch(err => console.error("Tracking failed:", err));
+    }
+
+    // Floating hearts
+    const heartsEl = document.getElementById("hearts");
+    const heartChars = ["💖","💘","💕","💗","💞","💓","💝"];
+    function spawnHeart(){
+      const h = document.createElement("div");
+      h.className = "heart";
+      h.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+      h.style.left = Math.random() * 100 + "vw";
+      h.style.fontSize = (14 + Math.random() * 26) + "px";
+      h.style.opacity = (0.25 + Math.random() * 0.55).toFixed(2);
+      const dur = 6 + Math.random() * 8;
+      h.style.animationDuration = dur + "s";
+      h.style.animationDelay = (Math.random() * 1.2) + "s";
+      heartsEl.appendChild(h);
+      setTimeout(() => h.remove(), (dur + 2) * 1000);
+    }
+    setInterval(spawnHeart, 420);
+
+    // Slides
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const stepText = document.getElementById("stepText");
+    let current = 0;
+
+    function showSlide(i){
+      current = i;
+      slides.forEach((s, idx) => {
+        s.classList.toggle("active", idx === i);
+        if (idx === i) {
+          s.classList.add("fadeIn");
+          setTimeout(() => s.classList.remove("fadeIn"), 300);
+        }
+      });
+      stepText.textContent = `Step ${i+1} of ${slides.length}`;
+      history.replaceState(null, "", "#step" + (i+1));
+    }
+
+    // Sparkles
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const rowArena = document.getElementById("rowArena");
+    const sparkles = document.getElementById("sparkles");
+
+    function burstSparkles(){
+      const rect = yesBtn.getBoundingClientRect();
+      const panelRect = document.getElementById("panel1").getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2 - panelRect.left;
+      const centerY = rect.top + rect.height / 2 - panelRect.top;
+
+      const count = 24;
+      for (let i = 0; i < count; i++){
+        const s = document.createElement("div");
+        s.className = "spark";
+        const angle = Math.random() * Math.PI * 2;
+        const dist  = 40 + Math.random() * 120;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist;
+
+        s.style.left = (centerX - 5) + "px";
+        s.style.top  = (centerY - 5) + "px";
+        s.style.setProperty("--dx", dx.toFixed(0) + "px");
+        s.style.setProperty("--dy", dy.toFixed(0) + "px");
+
+        sparkles.appendChild(s);
+        setTimeout(() => s.remove(), 700);
+      }
+    }
+
+    // === NO escapes inside the arena (works on mobile) ===
+    function teleportNo(){
+      const arenaRect = rowArena.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+      const pad = 8;
+
+      const maxX = arenaRect.width - btnRect.width - pad;
+      const maxY = arenaRect.height - btnRect.height - pad;
+
+      const x = pad + Math.random() * Math.max(0, maxX);
+      const y = pad + Math.random() * Math.max(0, maxY);
+
+      noBtn.style.position = "absolute";
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+    }
+
+    // Run away BEFORE click (desktop + mobile)
+    ["pointerenter","mouseenter","mouseover"].forEach(evt => {
+      noBtn.addEventListener(evt, teleportNo);
+    });
+
+    noBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      teleportNo();
+    }, { passive:false });
+
+    noBtn.addEventListener("click", () => {
+      teleportNo();
+      alert("Hehe 😄 No is too shy!");
+    });
+
+    // YES flow
+    yesBtn.addEventListener("click", () => {
+      yesBtn.classList.add("yesCelebrate");
+      burstSparkles();
+      setTimeout(() => showSlide(1), 520);
+    });
+
+    document.getElementById("continue2").onclick = () => showSlide(2);
+    document.getElementById("continue3").onclick = () => showSlide(3);
+    document.getElementById("continue4").onclick = () => showSlide(4);
+
+    // Track when she finishes step 5
+    document.getElementById("continue5").onclick = () => {
+      saveResponse({
+        dateFree: document.getElementById("dateFree").value,
+        moodEmoji: document.getElementById("moodEmoji").value,
+        food: document.getElementById("food").value,
+        activity: document.getElementById("activity").value
+      });
+      showSlide(5);
+    };
+
+    // Default date
+    const dateFree = document.getElementById("dateFree");
+    (function setDefaultDate(){
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      dateFree.value = `${yyyy}-${mm}-${dd}`;
+    })();
+
+    // Start
+    showSlide(0);
+  </script>
+</body>
+</html>
